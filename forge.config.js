@@ -2,13 +2,14 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses");
 const path = require("path");
 const fs = require("fs");
 
-// 平台架构 -> @cometix/codex target triple 映射
+// 平台架构 -> codex target triple 映射
 const TARGET_TRIPLE_MAP = {
-  "darwin-arm64": "aarch64-apple-darwin",
-  "darwin-x64": "x86_64-apple-darwin",
-  "linux-arm64": "aarch64-unknown-linux-musl",
-  "linux-x64": "x86_64-unknown-linux-musl",
   "win32-x64": "x86_64-pc-windows-msvc",
+};
+
+// 平台架构 -> @openai/codex 平台包目录映射
+const OPENAI_PACKAGE_DIR_MAP = {
+  "win32-x64": "codex-win32-x64",
 };
 
 // 获取 codex 二进制路径（优先本地，其次 npm）
@@ -22,15 +23,25 @@ function getCodexBinaryPath(platform, arch) {
     return localPath;
   }
 
-  // 路径2: npm @cometix/codex/vendor/
+  // 路径2: npm @openai/codex-<platform-arch>/vendor/
   const targetTriple = TARGET_TRIPLE_MAP[platformArch];
-  if (targetTriple) {
-    const npmPath = path.join(
+  const openaiPackageDir = OPENAI_PACKAGE_DIR_MAP[platformArch];
+  if (targetTriple && openaiPackageDir) {
+    const npmCometixPath = path.join(
       __dirname, "node_modules", "@cometix", "codex", "vendor",
       targetTriple, "codex", binaryName
     );
-    if (fs.existsSync(npmPath)) {
-      return npmPath;
+    const npmOpenAIScopedPath = path.join(
+      __dirname, "node_modules", "@openai", openaiPackageDir, "vendor",
+      targetTriple, "codex", binaryName
+    );
+    if (fs.existsSync(npmOpenAIScopedPath)) {
+      return npmOpenAIScopedPath;
+    }
+
+    // 兼容旧版包结构（@cometix/codex）
+    if (fs.existsSync(npmCometixPath)) {
+      return npmCometixPath;
     }
   }
 
@@ -96,19 +107,6 @@ module.exports = {
   },
   rebuildConfig: {},
   makers: [
-    // macOS DMG
-    {
-      name: "@electron-forge/maker-dmg",
-      config: {
-        format: "ULFO",
-        icon: "./resources/electron.icns",
-      },
-    },
-    // macOS ZIP
-    {
-      name: "@electron-forge/maker-zip",
-      platforms: ["darwin"],
-    },
     // Windows Squirrel
     {
       name: "@electron-forge/maker-squirrel",
@@ -124,43 +122,6 @@ module.exports = {
     {
       name: "@electron-forge/maker-zip",
       platforms: ["win32"],
-    },
-    // Linux DEB
-    {
-      name: "@electron-forge/maker-deb",
-      config: {
-        options: {
-          name: "codex",
-          productName: "Codex",
-          genericName: "AI Coding Assistant",
-          categories: ["Development", "Utility"],
-          bin: "Codex",
-          maintainer: "Cometix Space",
-          homepage: "https://github.com/Haleclipse/CodexDesktop-Rebuild",
-          icon: "./resources/electron.png",
-        },
-      },
-    },
-    // Linux RPM
-    {
-      name: "@electron-forge/maker-rpm",
-      config: {
-        options: {
-          name: "codex",
-          productName: "Codex",
-          genericName: "AI Coding Assistant",
-          categories: ["Development", "Utility"],
-          bin: "Codex",
-          license: "Apache-2.0",
-          homepage: "https://github.com/Haleclipse/CodexDesktop-Rebuild",
-          icon: "./resources/electron.png",
-        },
-      },
-    },
-    // Linux ZIP
-    {
-      name: "@electron-forge/maker-zip",
-      platforms: ["linux"],
     },
   ],
   plugins: [
@@ -190,6 +151,10 @@ module.exports = {
       platform,
       arch,
     ) => {
+      if (platform !== "win32" || arch !== "x64") {
+        throw new Error(`Unsupported target: ${platform}-${arch}. Only win32-x64 is supported.`);
+      }
+
       const platformArch = `${platform}-${arch}`;
       console.log(
         `\n🧹 Pruning non-target platform files for ${platformArch}...`,
@@ -499,6 +464,10 @@ module.exports = {
 
     // 打包后复制对应平台的 codex 二进制
     packageAfterCopy: async (config, buildPath, electronVersion, platform, arch) => {
+      if (platform !== "win32" || arch !== "x64") {
+        throw new Error(`Unsupported target: ${platform}-${arch}. Only win32-x64 is supported.`);
+      }
+
       console.log(`\n📦 Packaging for ${platform}-${arch}...`);
       console.log(`   buildPath: ${buildPath}`);
 
@@ -516,6 +485,7 @@ module.exports = {
       } else {
         console.error(`❌ Codex binary not found for ${platform}-${arch}`);
         console.error(`   Tried: resources/bin/${platform}-${arch}/${binaryName}`);
+        console.error(`   Tried: node_modules/@openai/codex-<platform>/vendor/.../codex/${binaryName}`);
         console.error(`   Tried: node_modules/@cometix/codex/vendor/.../codex/${binaryName}`);
         process.exit(1);
       }

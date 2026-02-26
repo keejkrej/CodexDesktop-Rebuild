@@ -1,42 +1,22 @@
 {
   "name": "codex-rebuild",
   "productName": "Codex",
-  "version": "1.0.3",
-  "description": "Codex Electron App - Cross-platform Build",
+  "version": "1.0.5",
+  "description": "Codex Electron App - Windows x64 Build",
   "main": "src/.vite/build/main.js",
   "scripts": {
     "start": "node scripts/start-dev.js",
     "dev": "node scripts/start-dev.js",
-
-    "patch": "node scripts/patch-copyright.js && node scripts/patch-i18n.js && node scripts/patch-process-polyfill.js",
-
-    "forge:package": "electron-forge package",
-    "forge:make": "npm run patch && electron-forge make",
-
-    "build": "npm run build:current",
-    "build:current": "npm run forge:make",
-
-    "build:mac": "npm run patch && npm run build:mac-arm64 && npm run build:mac-x64",
-    "build:mac-arm64": "npm run patch && electron-forge make --platform=darwin --arch=arm64",
-    "build:mac-x64": "npm run patch && electron-forge make --platform=darwin --arch=x64",
-
-    "build:win": "npm run build:win-x64",
-    "build:win-x64": "npm run patch && electron-forge make --platform=win32 --arch=x64",
-
-    "build:linux": "npm run patch && npm run build:linux-x64 && npm run build:linux-arm64",
-    "build:linux-x64": "npm run patch && electron-forge make --platform=linux --arch=x64",
-    "build:linux-arm64": "npm run patch && electron-forge make --platform=linux --arch=arm64",
-
-    "build:all": "npm run build:mac && npm run build:win && npm run build:linux",
-
+    "build": "electron-forge make --platform=win32 --arch=x64",
+    "patch:process-polyfill": "node scripts/patch-process-polyfill.js",
+    "patch:open-in-targets-win": "node scripts/patch-open-in-targets-win.js",
+    "patch:terminal-pwsh-win": "node scripts/patch-terminal-pwsh-win.js",
+    "patch:all": "npm run patch:process-polyfill && npm run patch:open-in-targets-win && npm run patch:terminal-pwsh-win",
     "postinstall": "npm run rebuild:native",
     "rebuild:native": "electron-rebuild"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
-    "@electron-forge/maker-deb": "^7.10.2",
-    "@electron-forge/maker-dmg": "^7.10.2",
-    "@electron-forge/maker-rpm": "^7.10.2",
     "@electron-forge/maker-squirrel": "^7.10.2",
     "@electron-forge/maker-zip": "^7.10.2",
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
@@ -62,7 +42,7 @@
     "zod": "^4.1.13"
   },
   "optionalDependencies": {
-    "@cometix/codex": "latest",
+    "@openai/codex": "latest",
     "electron-liquid-glass": "1.1.1"
   },
   "codexBuildFlavor": "prod",

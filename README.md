@@ -1,14 +1,12 @@
 # Codex Desktop Rebuild
 
-Cross-platform Electron build for OpenAI Codex Desktop App.
+Windows x64 Electron build for OpenAI Codex Desktop App.
 
 ## Supported Platforms
 
 | Platform | Architecture | Status |
 |----------|--------------|--------|
-| macOS    | x64, arm64   | ✅     |
 | Windows  | x64          | ✅     |
-| Linux    | x64, arm64   | ✅     |
 
 ## Build
 
@@ -19,15 +17,8 @@ npm install
 # Build for current platform
 npm run build
 
-# Build for specific platform
-npm run build:mac-x64
-npm run build:mac-arm64
+# Build for Windows x64
 npm run build:win-x64
-npm run build:linux-x64
-npm run build:linux-arm64
-
-# Build all platforms
-npm run build:all
 ```
 
 ## Development
@@ -46,26 +37,28 @@ npm run dev
 │   ├── electron.icns    # App icon
 │   └── notification.wav # Sound
 ├── scripts/
-│   └── patch-copyright.js
+│   ├── patch-process-polyfill.js
+│   ├── patch-open-in-targets-win.js
+│   ├── patch-terminal-pwsh-win.js
+│   ├── patch-shell-exec-pwsh-win.js
+│   └── refresh-from-dmg.ps1
 ├── forge.config.js      # Electron Forge config
 └── package.json
 ```
 
 ## CI/CD
 
-GitHub Actions automatically builds on:
-- Push to `master`
-- Tag `v*` → Creates draft release
+GitHub Actions builds only when a GitHub Release is published.
 
 ## Credits
 
 **© OpenAI · Cometix Space**
 
 - [OpenAI Codex](https://github.com/openai/codex) - Original Codex CLI (Apache-2.0)
-- [Cometix Space](https://github.com/Haleclipse) - Cross-platform rebuild & [@cometix/codex](https://www.npmjs.com/package/@cometix/codex) binaries
+- [Cometix Space](https://github.com/Haleclipse) - Rebuild project & [@openai/codex](https://www.npmjs.com/package/@openai/codex) binaries
 - [Electron Forge](https://www.electronforge.io/) - Build toolchain
 
 ## License
 
-This project rebuilds the Codex Desktop app for cross-platform distribution.
+This project rebuilds the Codex Desktop app for Windows x64 distribution.
 Original Codex CLI by OpenAI is licensed under Apache-2.0.

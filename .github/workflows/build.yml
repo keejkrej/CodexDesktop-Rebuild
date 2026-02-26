@@ -25,8 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Apply Windows patches
+        run: npm run patch:all
+
       - name: Build for Windows x64
-        run: npm run build:win-x64
+        run: npm run build
 
       - name: List outputs
         run: Get-ChildItem -Recurse out/make/

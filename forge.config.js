@@ -27,21 +27,12 @@ function getCodexBinaryPath(platform, arch) {
   const targetTriple = TARGET_TRIPLE_MAP[platformArch];
   const openaiPackageDir = OPENAI_PACKAGE_DIR_MAP[platformArch];
   if (targetTriple && openaiPackageDir) {
-    const npmCometixPath = path.join(
-      __dirname, "node_modules", "@cometix", "codex", "vendor",
-      targetTriple, "codex", binaryName
-    );
     const npmOpenAIScopedPath = path.join(
       __dirname, "node_modules", "@openai", openaiPackageDir, "vendor",
       targetTriple, "codex", binaryName
     );
     if (fs.existsSync(npmOpenAIScopedPath)) {
       return npmOpenAIScopedPath;
-    }
-
-    // 兼容旧版包结构（@cometix/codex）
-    if (fs.existsSync(npmCometixPath)) {
-      return npmCometixPath;
     }
   }
 
@@ -486,7 +477,6 @@ module.exports = {
         console.error(`❌ Codex binary not found for ${platform}-${arch}`);
         console.error(`   Tried: resources/bin/${platform}-${arch}/${binaryName}`);
         console.error(`   Tried: node_modules/@openai/codex-<platform>/vendor/.../codex/${binaryName}`);
-        console.error(`   Tried: node_modules/@cometix/codex/vendor/.../codex/${binaryName}`);
         process.exit(1);
       }
     },

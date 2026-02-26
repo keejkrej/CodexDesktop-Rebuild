@@ -11,25 +11,16 @@ Windows x64 Electron build for OpenAI Codex Desktop App.
 ## Build
 
 ```bash
-# Install dependencies
 npm install
-
-# Build for current platform
+npm run patch:all
 npm run build
-
-# Build for Windows x64
-npm run build:win-x64
 ```
 
-## Development
-
-```bash
-npm run dev
-```
+Build note: install **MSVC v143 - VS 2022 C++ x64/x86 Spectre-mitigated libs** in Visual Studio 2022 Build Tools.
 
 ## Project Structure
 
-```
+```text
 ├── src/
 │   ├── .vite/build/     # Main process (Electron)
 │   └── webview/         # Renderer (Frontend)
@@ -40,8 +31,7 @@ npm run dev
 │   ├── patch-process-polyfill.js
 │   ├── patch-open-in-targets-win.js
 │   ├── patch-terminal-pwsh-win.js
-│   ├── patch-shell-exec-pwsh-win.js
-│   └── refresh-from-dmg.ps1
+│   └── start-dev.js
 ├── forge.config.js      # Electron Forge config
 └── package.json
 ```
@@ -52,10 +42,10 @@ GitHub Actions builds only when a GitHub Release is published.
 
 ## Credits
 
-**© OpenAI · Cometix Space**
+**© OpenAI · Rebuild Contributors**
 
 - [OpenAI Codex](https://github.com/openai/codex) - Original Codex CLI (Apache-2.0)
-- [Cometix Space](https://github.com/Haleclipse) - Rebuild project & [@openai/codex](https://www.npmjs.com/package/@openai/codex) binaries
+- [Rebuild project](https://github.com/Haleclipse/CodexDesktop-Rebuild) - Rebuild changes and packaging scripts
 - [Electron Forge](https://www.electronforge.io/) - Build toolchain
 
 ## License
